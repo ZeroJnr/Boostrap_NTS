@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>Vincheck</title>
+  <base href="/">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+
+<body>
+  <script>
+    function controle() {
+      var saisie = document.getElementById("vin").value.toString();
+      console.log(saisie);
+      if (saisie.length > 17 || saisie.length < 17) {
+        alert("Your VIN is not valid");
+        return 84;
+      }
+      for (var i = 0; saisie[i]; i++) {
+        if (saisie[i] == 'O' || saisie[i] == 'Q' || saisie[i] == 'I') {
+          alert("Your VIN is not valid");
+          return 84;
+        }
+      }
+      if (saisie.length == 17) {
+        localStorage.setItem("local_set", saisie);
+      }
+    };
+  </script>
+  <script>
+    async function api_connect() {
+      var manuf = null;
+      var make = null;
+      var year = null;
+      var list = [];
+      var vOneLS = localStorage.getItem("local_set");
+      var saisie = vOneLS;
+      list[0] = "RENAULT GROUP";
+      list[1] = "FORD WERKE AG";
+      list[2] = "AUTOMOBILES PEUGEOT";
+      list[3] = "VOLKSWAGEN GROUP OF AMERICA, INC.";
+      list[4] = "TOYOTA MOTOR NORTH AMERICA, INC";
+      list[5] = "FCA ITALY S.P.A.";
+      $.ajax({
+        url: "https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVINValuesBatch/",
+        type: "POST",
+        data: { format: "json", data: saisie },
+        dataType: "json",
+        success: function (result) {
+          console.log(result);
+          manuf = result.Results[0].Manufacturer;
+          make = result.Results[0].Make;
+          year = result.Results[0].ModelYear;
+          console.log(manuf);
+          document.getElementById("vehicule").innerHTML = "votre vehicule est un : " + make;
+          document.getElementById("manuf").innerHTML = "Il est de la marque : " + manuf;
+          document.getElementById("year").innerHTML = "Et date de : " + year;
+          var x = document.getElementById("logo");
+          for (var i = 0; list[i]; i++) {
+            if (manuf == list[i]) {
+              x.innerHTML = "<img src=\"./assets/images/" + list[i] + ".png\" width=\"340\" height=\"350\" />";
+            }
+          }
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+          console.log(xhr.status);
+          console.log(thrownError);
+        }
+      });
+    };
+  </script>
+  <app-root></app-root>
+</body>
+
+</html>
