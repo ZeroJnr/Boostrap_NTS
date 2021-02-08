@@ -14,5 +14,8 @@ class Component public : IComponent {
 		Component();
 		~Component();
 	protected:
+		bool statetrue;
+		bool statefalse;
+		bool stateundif;
 	private:
 }
